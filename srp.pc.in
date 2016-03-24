@@ -1,0 +1,12 @@
+prefix=@prefix@
+libdir=@prefix@/lib
+includedir=@prefix@/include
+
+Name: Samsung RP package
+Description: Samsung RP API
+Version: @VERSION@
+Requires:
+Libs: -L${libdir} -lsrp
+
+Cflags: -I${includedir}/srp -DSLP_PLATFORM
+

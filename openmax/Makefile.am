@@ -1,0 +1,1 @@
+SUBDIRS = osal component core
