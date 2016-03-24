@@ -28,6 +28,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <mm_types.h>
 
 #include "Exynos_OSAL_Semaphore.h"
 #include "Exynos_OMX_Baseport.h"
@@ -153,22 +154,22 @@ OMX_ERRORTYPE Exynos_OSAL_LockPB(
 #ifdef SLP_PLATFORM
 
     ExynosVideoPlane *vplanes = (ExynosVideoPlane *) planes;
-    SCMN_IMGB *buffer = (SCMN_IMGB *) pBuffer;
+    MMVideoBuffer *buffer = (MMVideoBuffer *) pBuffer;
 
 
-    vplanes[0].fd = buffer->fd[0];
+    vplanes[0].fd = buffer->handle.dmabuf_fd[0];
     vplanes[0].offset = 0;
-    vplanes[1].fd = buffer->fd[1];
+    vplanes[1].fd = buffer->handle.dmabuf_fd[1];
     vplanes[1].offset = 0; //priv_hnd->uoffset;
     vplanes[2].fd = 0; //priv_hnd->v_fd;
     vplanes[2].offset = 0; //priv_hnd->voffset;
 
-    vplanes[0].addr = buffer->a[0]; //vaddr[0];
-    vplanes[1].addr = buffer->a[1]; //vaddr[1];
+    vplanes[0].addr = buffer->data[0]; //vaddr[0];
+    vplanes[1].addr = buffer->data[1]; //vaddr[1];
     vplanes[2].addr = NULL; //vaddr[2];
 
     Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "Exynos_OSAL_LockPB:fd[0](%d)  fd[1](%d)  a[0](%p)  a[1](%p)", 
-        buffer->fd[0], buffer->fd[1], buffer->a[0], buffer->a[1]);
+        buffer->handle.dmabuf_fd[0], buffer->handle.dmabuf_fd[1], buffer->data[0], buffer->data[1]);
 #else
     android_native_buffer_t *pANB = (android_native_buffer_t *) pBuffer;
 
@@ -192,42 +193,43 @@ OMX_ERRORTYPE Exynos_OSAL_UnlockPB(OMX_IN OMX_PTR pBuffer, EXYNOS_OMX_DATA *pDat
 
     OMX_ERRORTYPE ret = OMX_ErrorNone;
 #ifdef SLP_PLATFORM
-    SCMN_IMGB *pSlpOutBuf = NULL;
+    MMVideoBuffer *pSlpOutBuf = NULL;
     DECODE_CODEC_EXTRA_BUFFERINFO *pBufferInfo = NULL;
 
-    pSlpOutBuf = (SCMN_IMGB *)pBuffer;
+    pSlpOutBuf = (MMVideoBuffer *)pBuffer;
     if (pSlpOutBuf == NULL) {
       Exynos_OSAL_Log(EXYNOS_LOG_ERROR, "pBuffer is NULL!");
       ret = OMX_ErrorInsufficientResources;
       goto EXIT;
     }
-    memset(pSlpOutBuf, 0, sizeof(SCMN_IMGB));
+    memset(pSlpOutBuf, 0, sizeof(MMVideoBuffer));
 
     pBufferInfo = (DECODE_CODEC_EXTRA_BUFFERINFO *)pData->extInfo;
 
     if (pExynosPort->cropRectangle.nWidth != 0 && pExynosPort->cropRectangle.nHeight != 0) {
         /* modify for h264 trim */
         Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "this has cropRectangle(h264).crop.nWidth = %d, crop.nHeight = %d",
-            pExynosPort->cropRectangle.nWidth, pExynosPort->cropRectangle.nHeight);
-        pSlpOutBuf->w[0] = pExynosPort->cropRectangle.nWidth;
-        pSlpOutBuf->w[1] = pExynosPort->cropRectangle.nWidth;
-        pSlpOutBuf->h[0] = pExynosPort->cropRectangle.nHeight;
-        pSlpOutBuf->h[1] = (pExynosPort->cropRectangle.nHeight/2);
+            pExynosPort->cropRectangle.nWidth, pExynosPort->cropRectangle.nWidth);
+        pSlpOutBuf->width[0] = pExynosPort->cropRectangle.nWidth;
+        pSlpOutBuf->width[1] = pExynosPort->cropRectangle.nWidth;
+        pSlpOutBuf->height[0] = pExynosPort->cropRectangle.nHeight;
+        pSlpOutBuf->height[1] = pExynosPort->cropRectangle.nHeight/2;
 
-        pSlpOutBuf->s[0] = ALIGN(pExynosPort->cropRectangle.nWidth, S5P_FIMV_NV12MT_HALIGN); /* need to check. stride */
-        pSlpOutBuf->s[1] = ALIGN(pExynosPort->cropRectangle.nWidth, S5P_FIMV_NV12MT_HALIGN);
-        pSlpOutBuf->e[0] = ALIGN(pExynosPort->cropRectangle.nHeight, S5P_FIMV_NV12MT_VALIGN); /* need to check. elevation */
-        pSlpOutBuf->e[1] = ALIGN((pExynosPort->cropRectangle.nHeight/2), S5P_FIMV_NV12MT_VALIGN);
+
+        pSlpOutBuf->stride_width[0] = ALIGN(pExynosPort->cropRectangle.nWidth, S5P_FIMV_NV12MT_HALIGN); /* need to check. stride */
+        pSlpOutBuf->stride_width[1] = ALIGN(pExynosPort->cropRectangle.nWidth, S5P_FIMV_NV12MT_HALIGN);
+        pSlpOutBuf->stride_height[0] = ALIGN(pExynosPort->cropRectangle.nHeight, S5P_FIMV_NV12MT_VALIGN); /* need to check. elevation */
+        pSlpOutBuf->stride_height[1] = ALIGN((pExynosPort->cropRectangle.nHeight/2), S5P_FIMV_NV12MT_VALIGN);
     } else {
-        pSlpOutBuf->w[0] = pBufferInfo->imageWidth;
-        pSlpOutBuf->w[1] = pBufferInfo->imageWidth;
-        pSlpOutBuf->h[0] = pBufferInfo->imageHeight;
-        pSlpOutBuf->h[1] = (pBufferInfo->imageHeight/2);
+        pSlpOutBuf->width[0] = pBufferInfo->imageWidth;
+        pSlpOutBuf->width[1] = pBufferInfo->imageWidth;
+        pSlpOutBuf->height[0] = pBufferInfo->imageHeight;
+        pSlpOutBuf->height[1] = (pBufferInfo->imageHeight/2);
 
-        pSlpOutBuf->s[0] = ALIGN(pBufferInfo->imageWidth, S5P_FIMV_NV12MT_HALIGN); /* need to check. stride */
-        pSlpOutBuf->s[1] = ALIGN(pBufferInfo->imageWidth, S5P_FIMV_NV12MT_HALIGN);
-        pSlpOutBuf->e[0] = ALIGN(pBufferInfo->imageHeight, S5P_FIMV_NV12MT_VALIGN); /* need to check. elevation */
-        pSlpOutBuf->e[1] = ALIGN((pBufferInfo->imageHeight/2), S5P_FIMV_NV12MT_VALIGN);
+        pSlpOutBuf->stride_width[0] = ALIGN(pBufferInfo->imageWidth, S5P_FIMV_NV12MT_HALIGN); /* need to check. stride */
+        pSlpOutBuf->stride_width[1] = ALIGN(pBufferInfo->imageWidth, S5P_FIMV_NV12MT_HALIGN);
+        pSlpOutBuf->stride_height[0] = ALIGN(pBufferInfo->imageHeight, S5P_FIMV_NV12MT_VALIGN); /* need to check. elevation */
+        pSlpOutBuf->stride_height[1] = ALIGN((pBufferInfo->imageHeight/2), S5P_FIMV_NV12MT_VALIGN);
     }
 
 
@@ -238,30 +240,30 @@ OMX_ERRORTYPE Exynos_OSAL_UnlockPB(OMX_IN OMX_PTR pBuffer, EXYNOS_OMX_DATA *pDat
         pSlpOutBuf->a[1] = 0;
     } else {
 */
-        pSlpOutBuf->a[0] = pData->buffer.multiPlaneBuffer.dataBuffer[0];
-        pSlpOutBuf->a[1] = pData->buffer.multiPlaneBuffer.dataBuffer[1];
+        pSlpOutBuf->data[0] = pData->buffer.multiPlaneBuffer.dataBuffer[0];
+        pSlpOutBuf->data[1] = pData->buffer.multiPlaneBuffer.dataBuffer[1];
 //    }
-    pSlpOutBuf->a[2] = 0; /* omx do not use this plane */
+    pSlpOutBuf->data[2] = 0; /* omx do not use this plane */
 
-    pSlpOutBuf->fd[0] = pData->buffer.multiPlaneBuffer.fd[0];
-    pSlpOutBuf->fd[1] = pData->buffer.multiPlaneBuffer.fd[1];
-    pSlpOutBuf->fd[2] = 0;
+    pSlpOutBuf->handle.dmabuf_fd[0] = pData->buffer.multiPlaneBuffer.fd[0];
+    pSlpOutBuf->handle.dmabuf_fd[1] = pData->buffer.multiPlaneBuffer.fd[1];
+    pSlpOutBuf->handle.dmabuf_fd[2] = 0;
 
     if(pExynosInPort->portDefinition.format.video.eCompressionFormat == OMX_VIDEO_CodingAVC)
     {
-        pSlpOutBuf->y_size = calc_plane(pBufferInfo->imageWidth,pBufferInfo->imageHeight);
-        pSlpOutBuf->uv_size = calc_plane(pBufferInfo->imageWidth,(pBufferInfo->imageHeight) / 2);
-        Exynos_OSAL_Log(EXYNOS_LOG_TRACE,"H264 foramt and y_size=%d, uv_size=%d",pSlpOutBuf->y_size,pSlpOutBuf->uv_size);
+        pSlpOutBuf->size[0] = calc_plane(pBufferInfo->imageWidth,pBufferInfo->imageHeight);
+        pSlpOutBuf->size[1] = calc_plane(pBufferInfo->imageWidth,(pBufferInfo->imageHeight) / 2);
+        Exynos_OSAL_Log(EXYNOS_LOG_TRACE,"H264 foramt and y_size=%d, uv_size=%d",pSlpOutBuf->size[0],pSlpOutBuf->size[1]);
     } else {
-        pSlpOutBuf->y_size= calc_yplane(pBufferInfo->imageWidth,pBufferInfo->imageHeight);
-        pSlpOutBuf->uv_size = calc_uvplane(pBufferInfo->imageWidth,(pBufferInfo->imageHeight) / 2);
-        Exynos_OSAL_Log(EXYNOS_LOG_TRACE,"foramt is %d, and y_size=%d, uv_size=%d",pExynosInPort->portDefinition.format.video.eCompressionFormat ,pSlpOutBuf->y_size,pSlpOutBuf->uv_size);
+        pSlpOutBuf->size[0]= calc_yplane(pBufferInfo->imageWidth,pBufferInfo->imageHeight);
+        pSlpOutBuf->size[1] = calc_uvplane(pBufferInfo->imageWidth,(pBufferInfo->imageHeight) / 2);
+        Exynos_OSAL_Log(EXYNOS_LOG_TRACE,"foramt is %d, and y_size=%d, uv_size=%d",pExynosInPort->portDefinition.format.video.eCompressionFormat ,pSlpOutBuf->size[0],pSlpOutBuf->size[1]);
     }
 
 
-    pSlpOutBuf->buf_share_method = 1; /* use fd mode */
+    //pSlpOutBuf->type = 1; /* use fd mode */
 
-    Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "fd (%d, %d, %d) received from MFC", pSlpOutBuf->fd[0], pSlpOutBuf->fd[1], pSlpOutBuf->fd[2]);
+    Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "fd (%d, %d, %d) received from MFC", pSlpOutBuf->handle.dmabuf_fd[0], pSlpOutBuf->handle.dmabuf_fd[1], pSlpOutBuf->handle.dmabuf_fd[2]);
 #else
     android_native_buffer_t *pANB = (android_native_buffer_t *) pBuffer;
 

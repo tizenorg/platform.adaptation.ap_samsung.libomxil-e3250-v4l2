@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libOMX.Exynos.MP3.Decoder.la
-libdir = @prefix@/lib/omx
+libdir = @libdir@/omx
 
 libOMX_Exynos_MP3_Decoder_la_SOURCES = Exynos_OMX_Mp3dec.c \
                                     Exynos_OMX_Mp3dec.h \

@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mm_types.h>
 #include "Exynos_OMX_Macros.h"
 #include "Exynos_OSAL_Event.h"
 #include "Exynos_OMX_Venc.h"
@@ -129,6 +130,32 @@ OMX_ERRORTYPE Exynos_OMX_UseBuffer(
 #ifdef SLP_PLATFORM
             if (nPortIndex == OUTPUT_PORT_INDEX && pVideoEnc->bSharedOutputFD == OMX_TRUE)
                 pExynosPort->extendBufferHeader[i].buf_fd[0] = (int)(pBuffer); /*IL Client provides only FD value*/
+
+            MMVideoBuffer * pSlpOutBuf = (MMVideoBuffer *)pBuffer;
+
+            Exynos_OSAL_Log(EXYNOS_LOG_ERROR, "fd[0] =%d, fd[1] =%d, vaddr[0] =%p, vaddr[1] = %p, y_size=%d, uv_size=%d\n",
+                pSlpOutBuf->handle.dmabuf_fd[0], pSlpOutBuf->handle.dmabuf_fd[1], pSlpOutBuf->data[0], pSlpOutBuf->data[1],
+                pSlpOutBuf->size[0],pSlpOutBuf->size[1]);
+            if(nPortIndex == OUTPUT_PORT_INDEX )
+                  pTempBufferHdr->pBuffer  = pSlpOutBuf->handle.paddr[0];
+
+            pExynosPort->extendBufferHeader[i].buf_fd[0] = pSlpOutBuf->handle.dmabuf_fd[0];
+            pExynosPort->extendBufferHeader[i].buf_fd[1] = pSlpOutBuf->handle.dmabuf_fd[1];
+            pExynosPort->extendBufferHeader[i].buf_fd[2] = 0;
+
+            pExynosPort->extendBufferHeader[i].pYUVBuf[0] = pSlpOutBuf->data[0];
+            pExynosPort->extendBufferHeader[i].pYUVBuf[1] = pSlpOutBuf->data[1];
+            pExynosPort->extendBufferHeader[i].pYUVBuf[2] = NULL;
+
+            //pExynosPort->extendBufferHeader[i].tbm_bo[0] = pSlpOutBuf->handle.bo[0];
+            //pExynosPort->extendBufferHeader[i].tbm_bo[1] = pSlpOutBuf->handle.bo[1];
+            //pExynosPort->extendBufferHeader[i].tbm_bo[2] = NULL;
+
+            //pExynosPort->extendBufferHeader[i].size[0] = pSlpOutBuf->size[0];
+            //pExynosPort->extendBufferHeader[i].size[1] = pSlpOutBuf->size[1];
+            //pExynosPort->extendBufferHeader[i].size[2] = 0;
+
+
 #endif
             pExynosPort->assignedBufferNum++;
             if (pExynosPort->assignedBufferNum == pExynosPort->portDefinition.nBufferCountActual) {

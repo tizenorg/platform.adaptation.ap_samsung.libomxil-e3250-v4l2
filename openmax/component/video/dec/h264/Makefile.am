@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libOMX.Exynos.AVC.Decoder.la
-libdir = @prefix@/lib/omx
+libdir = @libdir@/omx
 
 libOMX_Exynos_AVC_Decoder_la_SOURCES = Exynos_OMX_H264dec.c \
                                        Exynos_OMX_H264dec.h \
@@ -24,6 +24,9 @@ libOMX_Exynos_AVC_Decoder_la_CFLAGS = -I$(top_srcdir)/openmax/include/khronos \
                                       -I$(top_srcdir)/exynos4/libcsc\
                                       -I$(top_srcdir)/exynos4/libcodec/video/v4l2/include \
                                       -I$(top_srcdir)/exynos/include
+
+libOMX_Exynos_AVC_Decoder_la_LIBADD += $(MM_COMMON_LIB)
+libOMX_Exynos_AVC_Decoder_la_CFLAGS += $(MM_COMMON_CFLAGS)
 
 if BOARD_USE_ANB
 libOMX_Exynos_AVC_Decoder_la_CFLAGS += -DUSE_ANB

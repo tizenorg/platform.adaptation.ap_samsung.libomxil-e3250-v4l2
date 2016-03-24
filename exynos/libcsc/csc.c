@@ -132,7 +132,11 @@ static CSC_ERRORCODE conv_sw_src_argb888(
         ret = CSC_ErrorNone;
         break;
     case HAL_PIXEL_FORMAT_YCbCr_420_SP:
+#ifdef USE_NEON
         csc_ARGB8888_to_YUV420SP_NEON(
+#else
+        csc_ARGB8888_to_YUV420SP(
+#endif
             (unsigned char *)handle->dst_buffer.planes[CSC_Y_PLANE],
             (unsigned char *)handle->dst_buffer.planes[CSC_UV_PLANE],
             (unsigned char *)handle->src_buffer.planes[CSC_RGB_PLANE],
@@ -157,12 +161,20 @@ static CSC_ERRORCODE conv_sw_src_nv12t(
     switch (handle->dst_format.color_format) {
     case HAL_PIXEL_FORMAT_YCbCr_420_P:
         ALOGE("dst_format HAL_PIXEL_FORMAT_YCbCr_420_P");
+#ifdef USE_NEON
         csc_tiled_to_linear_y_neon(
+#else
+        csc_tiled_to_linear_y(
+#endif
             (unsigned char *)handle->dst_buffer.planes[CSC_Y_PLANE],
             (unsigned char *)handle->src_buffer.planes[CSC_Y_PLANE],
             handle->src_format.width,
             handle->src_format.height);
+#ifdef USE_NEON
         csc_tiled_to_linear_uv_deinterleave_neon(
+#else
+        csc_tiled_to_linear_uv_deinterleave(
+#endif
             (unsigned char *)handle->dst_buffer.planes[CSC_U_PLANE],
             (unsigned char *)handle->dst_buffer.planes[CSC_V_PLANE],
             (unsigned char *)handle->src_buffer.planes[CSC_UV_PLANE],
@@ -172,12 +184,20 @@ static CSC_ERRORCODE conv_sw_src_nv12t(
         break;
     case HAL_PIXEL_FORMAT_YCbCr_420_SP:
         ALOGE("dst_format HAL_PIXEL_FORMAT_YCbCr_420_SP");
+#ifdef USE_NEON
         csc_tiled_to_linear_y_neon(
+#else
+        csc_tiled_to_linear_y(
+#endif
             (unsigned char *)handle->dst_buffer.planes[CSC_Y_PLANE],
             (unsigned char *)handle->src_buffer.planes[CSC_Y_PLANE],
             handle->src_format.width,
             handle->src_format.height);
+#ifdef USE_NEON
         csc_tiled_to_linear_uv_neon(
+#else
+        csc_tiled_to_linear_uv(
+#endif
             (unsigned char *)handle->dst_buffer.planes[CSC_UV_PLANE],
             (unsigned char *)handle->src_buffer.planes[CSC_UV_PLANE],
             handle->src_format.width,
@@ -238,7 +258,11 @@ static CSC_ERRORCODE conv_sw_src_yuv420p(
         memcpy((unsigned char *)handle->dst_buffer.planes[CSC_Y_PLANE],
                (unsigned char *)handle->src_buffer.planes[CSC_Y_PLANE],
                handle->src_format.width * handle->src_format.height);
+#ifdef USE_NEON
         csc_interleave_memcpy_neon(
+#else
+        csc_interleave_memcpy(
+#endif
             (unsigned char *)handle->dst_buffer.planes[CSC_UV_PLANE],
             (unsigned char *)handle->src_buffer.planes[CSC_U_PLANE],
             (unsigned char *)handle->src_buffer.planes[CSC_V_PLANE],

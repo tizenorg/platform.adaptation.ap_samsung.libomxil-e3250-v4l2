@@ -112,6 +112,9 @@ OSCL_EXPORT_REF OMX_ERRORTYPE Exynos_OMX_ComponentInit(
 OMX_ERRORTYPE Exynos_OMX_ComponentDeinit(
     OMX_HANDLETYPE hComponent);
 
+OMX_ERRORTYPE WmvCodecSrcInit(OMX_COMPONENTTYPE *pOMXComponent);
+OMX_ERRORTYPE WmvCodecDstSetup(OMX_COMPONENTTYPE *pOMXComponent);
+OMX_ERRORTYPE WmvCodecCheckResolutionChange(OMX_COMPONENTTYPE *pOMXComponent);
 #ifdef __cplusplus
 };
 #endif

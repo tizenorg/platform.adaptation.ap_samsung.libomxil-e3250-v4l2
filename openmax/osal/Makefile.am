@@ -34,6 +34,9 @@ libExynosOMX_OSAL_la_CFLAGS = -I$(top_srcdir)/exynos4/include \
                               -I$(top_srcdir)/exynos/include \
                               -I$(top_srcdir)/exynos4/libcodec/video/v4l2/include
 
+libExynosOMX_OSAL_la_CFLAGS += $(MM_COMMON_CFLAGS)
+libExynosOMX_OSAL_la_LIBADD += $(MM_COMMON_LIBS)
+
 if USE_DLOG
 libExynosOMX_OSAL_la_CFLAGS += $(DLOG_CFLAGS) -DUSE_DLOG
 libExynosOMX_OSAL_la_LIBADD += $(DLOG_LIBS)

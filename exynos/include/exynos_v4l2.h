@@ -43,7 +43,7 @@ extern "C" {
 #include <stdbool.h>
 #ifdef SLP_PLATFORM
 #include <linux/videodev2.h>
-#include <linux/videodev2_exynos_media.h>
+//#include <linux/videodev2_exynos_media.h>
 #else
 #include "videodev2.h" /* vendor specific videodev2.h */
 #include "videodev2_exynos_media.h"
@@ -108,7 +108,11 @@ int exynos_v4l2_s_ext_ctrl(int fd, struct v4l2_ext_controls *ctrl);
 #include <v4l2-subdev.h>
 #else
 
+#ifdef KERNEL_HEADER_MODIFICATION
+#include "../kernel_header/v4l2-subdev.h"
+#else
 #include <linux/v4l2-subdev.h>
+#endif
 
 #endif
 
@@ -140,8 +144,13 @@ int exynos_subdev_enum_mbus_code(int fd, struct v4l2_subdev_mbus_code_enum *mbus
 #include <media.h>
 #else
 
-//#include <linux/compiler.h>
+#ifdef KERNEL_HEADER_MODIFICATION
+#include "../kernel_header/compiler.h"
+#include "../kernel_header/media.h"
+#else
+#include <linux/compiler.h>
 #include <linux/media.h>
+#endif
 
 #endif
 

@@ -19,7 +19,10 @@ libExynosOMX_Venc_la_CFLAGS = -I$(top_srcdir)/openmax/include/khronos \
                               -I$(top_srcdir)/openmax/component/video/enc \
                               -I$(top_srcdir)/exynos4/libcodec/video/v4l2/include \
                               -I$(top_srcdir)/exynos/include \
-                              -I$(top_srcdir)/exynos/libcsc 
+                              -I$(top_srcdir)/exynos/libcsc
+
+libExynosOMX_Venc_la_CFLAGS += $(MM_COMMON_CFLAGS)
+libExynosOMX_Venc_la_LIBADD += $(MM_COMMON_LIBS)
 
 if BOARD_USE_METADATABUFFERTYPE
 libExynosOMX_Venc_la_CFLAGS += -DUSE_METADATABUFFERTYPE

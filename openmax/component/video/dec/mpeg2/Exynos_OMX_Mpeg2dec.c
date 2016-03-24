@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mm_types.h>
 
 #include "Exynos_OMX_Macros.h"
 #include "Exynos_OMX_Basecomponent.h"
