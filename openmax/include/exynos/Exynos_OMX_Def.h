@@ -52,10 +52,10 @@
 
 #define MAX_BUFFER_PLANE     3
 
-#ifdef SLP_PLATFORM /* build env */
+#ifdef USE_NEON
 #define EXYNOS_OMX_INSTALL_PATH "/usr/lib/omx/"
 #else
-#define EXYNOS_OMX_INSTALL_PATH "/system/lib/omx/"
+#define EXYNOS_OMX_INSTALL_PATH "/usr/lib64/omx/"
 #endif
 
 typedef enum _EXYNOS_CODEC_TYPE

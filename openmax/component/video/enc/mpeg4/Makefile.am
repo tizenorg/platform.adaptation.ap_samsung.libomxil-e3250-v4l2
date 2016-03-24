@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libOMX.Exynos.M4V.Encoder.la
-libdir = @prefix@/lib/omx
+libdir = @libdir@/omx
 
 libOMX_Exynos_M4V_Encoder_la_SOURCES = Exynos_OMX_Mpeg4enc.c \
                                     Exynos_OMX_Mpeg4enc.h \

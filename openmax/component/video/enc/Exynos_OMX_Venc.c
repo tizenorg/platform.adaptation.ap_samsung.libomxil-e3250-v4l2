@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mm_types.h>
 #include "Exynos_OMX_Macros.h"
 #include "Exynos_OSAL_Event.h"
 #include "Exynos_OMX_Venc.h"
@@ -373,12 +374,12 @@ OMX_BOOL Exynos_Preprocessor_InputData(OMX_COMPONENTTYPE *pOMXComponent, EXYNOS_
                 Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "%s:%d YAddr: 0x%x CbCrAddr: 0x%x", __FUNCTION__, __LINE__, (unsigned int)ppBuf[0], (unsigned int)ppBuf[1]);
             }
 #else // for Tizen Camera scenario
-            SCMN_IMGB *pscmn_Imgb = (SCMN_IMGB*)inputUseBuffer->bufferHeader->pBuffer;
+            MMVideoBuffer *mm_buf = (MMVideoBuffer*)inputUseBuffer->bufferHeader->pBuffer;
             int plane = 0;
 
             for (plane = 0; plane < MFC_INPUT_BUFFER_PLANE; plane++) {
-                srcInputData->buffer.multiPlaneBuffer.dataBuffer[plane] = pscmn_Imgb->a[plane];
-                srcInputData->buffer.multiPlaneBuffer.fd[plane] = pscmn_Imgb->fd[plane];
+                srcInputData->buffer.multiPlaneBuffer.dataBuffer[plane] = mm_buf->data[plane];//handle.paddr[plane];
+                srcInputData->buffer.multiPlaneBuffer.fd[plane] = mm_buf->handle.dmabuf_fd[plane];
                 Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "[ENC] get fd[%d] %d , a[%d] %x "
 					, plane, srcInputData->buffer.multiPlaneBuffer.fd[plane], plane, srcInputData->buffer.multiPlaneBuffer.dataBuffer[plane] );
             }

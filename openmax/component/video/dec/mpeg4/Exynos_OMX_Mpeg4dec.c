@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mm_types.h>
 
 #include "Exynos_OMX_Macros.h"
 #include "Exynos_OMX_Basecomponent.h"
@@ -1752,7 +1753,7 @@ OMX_ERRORTYPE Exynos_Mpeg4Dec_SetParameter(
                 break;
 #ifdef SLP_PLATFORM /* NV12T fd */
             case OMX_SEC_COLOR_FormatNV12T_DmaBuf_Fd:
-                pExynosOutputPort->portDefinition.nBufferSize = sizeof(SCMN_IMGB);
+                pExynosOutputPort->portDefinition.nBufferSize = sizeof(MMVideoBuffer);
                 break;
 #endif
             case OMX_SEC_COLOR_FormatNV12Tiled:

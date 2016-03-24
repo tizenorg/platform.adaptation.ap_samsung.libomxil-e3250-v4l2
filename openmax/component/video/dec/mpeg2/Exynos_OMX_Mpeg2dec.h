@@ -36,6 +36,7 @@
 typedef struct _EXYNOS_MFC_MPEG2DEC_HANDLE
 {
     OMX_HANDLETYPE hMFCHandle;
+    OMX_BOOL bShareableBuf;
     OMX_U32  indexTimestamp;
     OMX_U32  outputIndexTimestamp;
     OMX_BOOL       bConfiguredMFCSrc;
@@ -74,6 +75,8 @@ OSCL_EXPORT_REF OMX_ERRORTYPE Exynos_OMX_ComponentInit(
 OMX_ERRORTYPE Exynos_OMX_ComponentDeinit(
     OMX_HANDLETYPE hComponent);
 
+OMX_ERRORTYPE Mpeg2CodecDstSetup(OMX_COMPONENTTYPE *pOMXComponent);
+OMX_ERRORTYPE Mpeg2CodecCheckResolutionChange(OMX_COMPONENTTYPE *pOMXComponent);
 #ifdef __cplusplus
 };
 #endif

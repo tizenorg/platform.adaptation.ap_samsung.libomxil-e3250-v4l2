@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libOMX.Exynos.WMV.Decoder.la
-libdir = @prefix@/lib/omx
+libdir = @libdir@/omx
 
 libOMX_Exynos_WMV_Decoder_la_SOURCES = Exynos_OMX_Wmvdec.c \
                                     Exynos_OMX_Wmvdec.h \

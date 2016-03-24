@@ -1386,6 +1386,7 @@ void csc_linear_to_tiled_uv(
                                         0, 0, 0, 0);
 }
 
+#ifdef USE_NEON
 /*
  * Converts tiled data to linear for mfc 6.x
  * 1. Y of NV12T to Y of YUV420P
@@ -1527,6 +1528,7 @@ void csc_linear_to_tiled_uv_neon(
     csc_linear_to_tiled_interleave_crop_neon(uv_dst, u_src, v_src,
                                              width, height, 0, 0, 0, 0);
 }
+#endif
 
 /*
  * Converts RGB565 to YUV420P

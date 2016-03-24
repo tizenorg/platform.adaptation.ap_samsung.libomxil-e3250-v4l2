@@ -453,7 +453,7 @@ int exynos_v4l2_expbuf(int fd, int *buf_fd, __u32 mem_offset)
     }
 
     expbuf.flags = O_CLOEXEC;
-    expbuf.mem_offset = mem_offset;
+    //expbuf.mem_offset = mem_offset;
     ALOGE("%s: fd:%d mem_offset:%d", __func__, fd, mem_offset);
 
     ret = ioctl(fd, VIDIOC_EXPBUF, &expbuf);

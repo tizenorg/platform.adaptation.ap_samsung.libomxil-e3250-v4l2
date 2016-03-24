@@ -582,15 +582,15 @@ OMX_ERRORTYPE Mpeg4CodecOpen(EXYNOS_MPEG4ENC_HANDLE *pMpeg4Enc)
     if (pMpeg4Enc->hMFCMpeg4Handle.bShareableBuf == OMX_TRUE) {
 #ifdef USE_DMA_BUF
         v4l2MemoryType = V4L2_MEMORY_DMABUF;
-        Exynos_OSAL_Log(EXYNOS_LOG_ERROR, "using Enc V4L2_MEMORY_DMABUF");
+        Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "using Enc V4L2_MEMORY_DMABUF");
 #else
         v4l2MemoryType = V4L2_MEMORY_USERPTR;
-        Exynos_OSAL_Log(EXYNOS_LOG_ERROR, "using Enc V4L2_MEMORY_USEPTR");
+        Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "using Enc V4L2_MEMORY_USEPTR");
 #endif
     } else {
         //v4l2MemoryType = V4L2_MEMORY_MMAP;
         v4l2MemoryType = V4L2_MEMORY_DMABUF; //if input port is using Buffer-share mode
-        Exynos_OSAL_Log(EXYNOS_LOG_ERROR, "using Enc V4L2_MEMORY - DMABUF & MMAP");
+        Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "using Enc V4L2_MEMORY - DMABUF & MMAP");
     }
 
     /* alloc context, open, querycap */

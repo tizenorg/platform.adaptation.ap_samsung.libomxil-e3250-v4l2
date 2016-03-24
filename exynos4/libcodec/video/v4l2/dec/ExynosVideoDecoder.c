@@ -42,7 +42,7 @@
 #include "ExynosVideoApi.h"
 #include "ExynosVideoDec.h"
 
-#include <mm_ta/mm_ta.h>
+//#include <mm_ta/mm_ta.h>
 
 /* #define LOG_NDEBUG 0 */
 #define LOG_TAG "ExynosVideoDecoder"
@@ -127,7 +127,7 @@ static void *MFC_Decoder_Init(int nMemoryType)
     pthread_mutex_t       *pMutex   = NULL;
     int                    needCaps = (V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING);
 
-    MMTA_ACUM_ITEM_BEGIN("Video First Frame Coming", 0);
+
 
     pCtx = (ExynosVideoDecContext *)malloc(sizeof(*pCtx));
     if (pCtx == NULL) {
@@ -137,20 +137,16 @@ static void *MFC_Decoder_Init(int nMemoryType)
 
     memset(pCtx, 0, sizeof(*pCtx));
 
-    __ta__("exynos_v4l2_open_devname : VIDEO_DECODER_NAME",
     pCtx->hDec = exynos_v4l2_open_devname(VIDEO_DECODER_NAME, O_RDWR, 0);
-    );
     if (pCtx->hDec < 0) {
         ALOGE("%s: Failed to open decoder device", __func__);
         goto EXIT_OPEN_FAIL;
     }
 
-    __ta__("exynos_v4l2_querycap",
     if (!exynos_v4l2_querycap(pCtx->hDec, needCaps)) {
         ALOGE("%s: Failed to querycap", __func__);
         goto EXIT_QUERYCAP_FAIL;
     }
-    );
 
     pCtx->bStreamonInbuf = VIDEO_FALSE;
     pCtx->bStreamonOutbuf = VIDEO_FALSE;
@@ -292,19 +288,18 @@ static ExynosVideoErrorType MFC_Decoder_Set_FrameTag(
 {
     ExynosVideoDecContext *pCtx = (ExynosVideoDecContext *)pHandle;
     ExynosVideoErrorType   ret  = VIDEO_ERROR_NONE;
-
+#ifdef V4L2_CID_MPEG_MFC51_VIDEO_FRAME_TAG
     if (pCtx == NULL) {
         ALOGE("%s: Video context info must be supplied", __func__);
         ret = VIDEO_ERROR_BADPARAM;
         goto EXIT;
     }
 
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_MPEG_MFC51_VIDEO_FRAME_TAG",
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_MPEG_MFC51_VIDEO_FRAME_TAG, frameTag) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    );
+#endif
 
 EXIT:
     return ret;
@@ -322,11 +317,9 @@ static int MFC_Decoder_Get_FrameTag(void *pHandle)
         ALOGE("%s: Video context info must be supplied", __func__);
         goto EXIT;
     }
-
-    __ta__("exynos_v4l2_g_ctrl : V4L2_CID_MPEG_MFC51_VIDEO_FRAME_TAG",
+#ifdef V4L2_CID_MPEG_MFC51_VIDEO_FRAME_TAG
     exynos_v4l2_g_ctrl(pCtx->hDec, V4L2_CID_MPEG_MFC51_VIDEO_FRAME_TAG, &frameTag);
-    );
-
+#endif
 EXIT:
     return frameTag;
 }
@@ -344,9 +337,7 @@ static int MFC_Decoder_Get_ActualBufferCount(void *pHandle)
         goto EXIT;
     }
 
-    __ta__("exynos_v4l2_g_ctrl : V4L2_CID_MIN_BUFFERS_FOR_CAPTURE",
     exynos_v4l2_g_ctrl(pCtx->hDec, V4L2_CID_MIN_BUFFERS_FOR_CAPTURE, &bufferCount);
-    );
 
 EXIT:
     return bufferCount;
@@ -368,12 +359,10 @@ static ExynosVideoErrorType MFC_Decoder_Set_DisplayDelay(
         goto EXIT;
     }
 
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_MPEG_MFC51_VIDEO_DECODER_H264_DISPLAY_DELAY",
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_MPEG_MFC51_VIDEO_DECODER_H264_DISPLAY_DELAY, delay) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    );
 
 EXIT:
     return ret;
@@ -385,20 +374,18 @@ static ExynosVideoErrorType MFC_Decoder_Set_ImmediateDisplay( void *pHandle)
 {
     ExynosVideoDecContext *pCtx = (ExynosVideoDecContext *)pHandle;
     ExynosVideoErrorType   ret  = VIDEO_ERROR_NONE;
-
+#ifdef V4L2_CID_MPEG_VIDEO_DECODER_IMMEDIATE_DISPLAY
     if (pCtx == NULL) {
         ALOGE("%s: Video context info must be supplied", __func__);
         ret = VIDEO_ERROR_BADPARAM;
         goto EXIT;
     }
 
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_MPEG_VIDEO_DECODER_IMMEDIATE_DISPLAY",
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_MPEG_VIDEO_DECODER_IMMEDIATE_DISPLAY, 1) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    );
-
+#endif
 EXIT:
     return ret;
 }
@@ -415,14 +402,12 @@ static ExynosVideoErrorType MFC_Decoder_Enable_PackedPB(void *pHandle)
         ret = VIDEO_ERROR_BADPARAM;
         goto EXIT;
     }
-
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_MPEG_MFC51_VIDEO_PACKED_PB",
+#ifdef V4L2_CID_MPEG_MFC51_VIDEO_PACKED_PB
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_MPEG_MFC51_VIDEO_PACKED_PB, 1) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    );
-
+#endif
 EXIT:
     return ret;
 }
@@ -441,12 +426,10 @@ static ExynosVideoErrorType MFC_Decoder_Enable_LoopFilter(void *pHandle)
         goto EXIT;
     }
 
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_MPEG_VIDEO_DECODER_MPEG4_DEBLOCK_FILTER" ,
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_MPEG_VIDEO_DECODER_MPEG4_DEBLOCK_FILTER, 1) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
 EXIT:
     return ret;
@@ -466,12 +449,10 @@ static ExynosVideoErrorType MFC_Decoder_Enable_SliceMode(void *pHandle)
         goto EXIT;
     }
 
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_MPEG_VIDEO_DECODER_SLICE_INTERFACE" ,
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_MPEG_VIDEO_DECODER_SLICE_INTERFACE, 1) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
 EXIT:
     return ret;
@@ -491,12 +472,10 @@ static ExynosVideoErrorType MFC_Decoder_Enable_SEIParsing(void *pHandle)
         goto EXIT;
     }
 
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_MPEG_VIDEO_H264_SEI_FRAME_PACKING" ,
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_MPEG_VIDEO_H264_SEI_FRAME_PACKING, 1) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
 EXIT:
     return ret;
@@ -511,7 +490,7 @@ static ExynosVideoErrorType MFC_Decoder_Get_FramePackingInfo(
 {
     ExynosVideoDecContext   *pCtx = (ExynosVideoDecContext *)pHandle;
     ExynosVideoErrorType     ret  = VIDEO_ERROR_NONE;
-
+#ifdef V4L2_CID_MPEG_VIDEO_H264_SEI_FP_AVAIL
     struct v4l2_ext_control  ext_ctrl[FRAME_PACK_SEI_INFO_NUM];
     struct v4l2_ext_controls ext_ctrls;
 
@@ -536,12 +515,10 @@ static ExynosVideoErrorType MFC_Decoder_Get_FramePackingInfo(
     ext_ctrl[2].id =  V4L2_CID_MPEG_VIDEO_H264_SEI_FP_INFO;
     ext_ctrl[3].id =  V4L2_CID_MPEG_VIDEO_H264_SEI_FP_GRID_POS;
 
-    __ta__("exynos_v4l2_g_ext_ctrl : V4L2_CID_MPEG_VIDEO_H264_SEI_FP_XX(AVAIL,ARRGMENT_ID,INFO,GRID_POS)" ,
     if (exynos_v4l2_g_ext_ctrl(pCtx->hDec, &ext_ctrls) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     seiAvailable = ext_ctrl[0].value;
     seiArgmtId = ext_ctrl[1].value;
@@ -564,7 +541,7 @@ static ExynosVideoErrorType MFC_Decoder_Get_FramePackingInfo(
     pFramePacking->frame0_grid_pos_y = OPERATE_BIT(seiGridPos, 0xf, 4);
     pFramePacking->frame1_grid_pos_x = OPERATE_BIT(seiGridPos, 0xf, 8);
     pFramePacking->frame1_grid_pos_y = OPERATE_BIT(seiGridPos, 0xf, 12);
-
+#endif
 EXIT:
     return ret;
 }
@@ -579,20 +556,18 @@ static ExynosVideoErrorType MFC_Decoder_Enable_DecodeWait(void *pHandle)
 {
     ExynosVideoDecContext *pCtx = (ExynosVideoDecContext *)pHandle;
     ExynosVideoErrorType   ret  = VIDEO_ERROR_NONE;
-
+#ifdef V4L2_CID_MPEG_VIDEO_DECODER_WAIT_DECODING_START
     if (pCtx == NULL) {
         ALOGE("%s: Video context info must be supplied", __func__);
         ret = VIDEO_ERROR_BADPARAM;
         goto EXIT;
     }
 
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_MPEG_VIDEO_DECODER_WAIT_DECODING_START" ,
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_MPEG_VIDEO_DECODER_WAIT_DECODING_START, 1) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
-
+#endif
 EXIT:
     return ret;
 }
@@ -612,14 +587,12 @@ static ExynosVideoErrorType MFC_Decoder_Enable_Cacheable_Inbuf(void *pHandle)
         ret = VIDEO_ERROR_BADPARAM;
         goto EXIT;
     }
-
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_CACHEABLE" ,
+#ifdef V4L2_CID_CACHEABLE
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_CACHEABLE, 2) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
-
+#endif
 EXIT:
     return ret;
 }
@@ -637,14 +610,12 @@ static ExynosVideoErrorType MFC_Decoder_Enable_Cacheable_Outbuf(void *pHandle)
         ret = VIDEO_ERROR_BADPARAM;
         goto EXIT;
     }
-
-    __ta__("exynos_v4l2_s_ctrl : V4L2_CID_CACHEABLE" ,
+#ifdef V4L2_CID_CACHEABLE
     if (exynos_v4l2_s_ctrl(pCtx->hDec, V4L2_CID_CACHEABLE, 1) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
-
+#endif
 EXIT:
     return ret;
 }
@@ -779,12 +750,10 @@ static ExynosVideoErrorType MFC_Decoder_Set_Geometry_Inbuf(
     fmt.fmt.pix_mp.pixelformat = __CodingType_To_V4L2PixelFormat(bufferConf->eCompressionFormat);
     fmt.fmt.pix_mp.plane_fmt[0].sizeimage = bufferConf->nSizeImage;
 
-__ta__("exynos_v4l2_s_fmt" ,
     if (exynos_v4l2_s_fmt(pCtx->hDec, &fmt) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     memcpy(&pCtx->inbufGeometry, bufferConf, sizeof(pCtx->inbufGeometry));
 
@@ -821,12 +790,10 @@ static ExynosVideoErrorType MFC_Decoder_Set_Geometry_Outbuf(
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
     fmt.fmt.pix_mp.pixelformat = __ColorFormatType_To_V4L2PixelFormat(bufferConf->eColorFormat);
 
-    __ta__("exynos_v4l2_s_fmt" ,
     if (exynos_v4l2_s_fmt(pCtx->hDec, &fmt) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     memcpy(&pCtx->outbufGeometry, bufferConf, sizeof(pCtx->outbufGeometry));
 
@@ -864,23 +831,19 @@ static ExynosVideoErrorType MFC_Decoder_Get_Geometry_Outbuf(
 
     fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 
-    __ta__("exynos_v4l2_g_fmt" ,
     if (exynos_v4l2_g_fmt(pCtx->hDec, &fmt) != 0) {
         ALOGE("%s: exynos_v4l2_g_fmt. ret = %d", __func__, ret);
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE;
 
-    __ta__("exynos_v4l2_g_crop" ,
     if (exynos_v4l2_g_crop(pCtx->hDec, &crop) != 0) {
         ALOGE("%s: exynos_v4l2_g_crop. ret=%d", __func__, ret);
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     bufferConf->nFrameWidth = fmt.fmt.pix_mp.width;
     bufferConf->nFrameHeight = fmt.fmt.pix_mp.height;
@@ -935,12 +898,10 @@ static ExynosVideoErrorType MFC_Decoder_Setup_Inbuf(
     else
         req.memory = V4L2_MEMORY_MMAP;
 
-    __ta__("exynos_v4l2_reqbufs : V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE",
     if (exynos_v4l2_reqbufs(pCtx->hDec, &req) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    );
 
     if (req.count != nBufferCount) {
         ALOGE("%s: asked for %d, got %d\n", __func__, nBufferCount, req.count);
@@ -969,20 +930,16 @@ static ExynosVideoErrorType MFC_Decoder_Setup_Inbuf(
         ALOGV("[%s] INBUF V4L2_MEMORY_MMAP", __func__);
         for (i = 0; i < pCtx->nInbufs; i++) {
             buf.index = i;
-            __ta__("INBUF :  exynos_v4l2_querybuf",
             if (exynos_v4l2_querybuf(pCtx->hDec, &buf) != 0) {
                 ret = VIDEO_ERROR_APIFAIL;
                 goto EXIT;
             }
-            );
 
             pVideoPlane = &pCtx->pInbuf[i].planes[0];
 
-            __ta__("mmap : V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE",
             pVideoPlane->addr = mmap(NULL,
                     buf.m.planes[0].length, PROT_READ | PROT_WRITE,
                     MAP_SHARED, pCtx->hDec, buf.m.planes[0].m.mem_offset);
-            );
 
             if (pVideoPlane->addr == MAP_FAILED) {
                 ret = VIDEO_ERROR_MAPFAIL;
@@ -1061,12 +1018,10 @@ static ExynosVideoErrorType MFC_Decoder_Setup_Outbuf(
     else
         req.memory = V4L2_MEMORY_MMAP;
 
-    __ta__("exynos_v4l2_reqbufs : V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE" ,
     if (exynos_v4l2_reqbufs(pCtx->hDec, &req) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     if (req.count != nBufferCount) {
         ALOGE("%s: asked for %d, got %d\n", __func__, nBufferCount, req.count);
@@ -1095,20 +1050,16 @@ static ExynosVideoErrorType MFC_Decoder_Setup_Outbuf(
         ALOGV("[%s] OUTBUF V4L2_MEMORY_MMAP", __func__);
         for (i = 0; i < pCtx->nOutbufs; i++) {
             buf.index = i;
-            __ta__("exynos_v4l2_querybuf" ,
             if (exynos_v4l2_querybuf(pCtx->hDec, &buf) != 0) {
                 ret = VIDEO_ERROR_APIFAIL;
                 goto EXIT;
             }
-            )
 
             for (j = 0; j < VIDEO_DECODER_OUTBUF_PLANES; j++) {
                 pVideoPlane = &pCtx->pOutbuf[i].planes[j];
-                __ta__("mmap : V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE",
                 pVideoPlane->addr = mmap(NULL,
                         buf.m.planes[j].length, PROT_READ | PROT_WRITE,
                         MAP_SHARED, pCtx->hDec, buf.m.planes[j].m.mem_offset);
-                );
 
                 if (pVideoPlane->addr == MAP_FAILED) {
                     ret = VIDEO_ERROR_MAPFAIL;
@@ -1119,12 +1070,12 @@ static ExynosVideoErrorType MFC_Decoder_Setup_Outbuf(
                 pVideoPlane->dataSize = 0;
 
 #ifdef SLP_PLATFORM /* dmabuf */
-                    __ta__("exynos_v4l2_expbuf" ,
-//                if (pCtx->bufShareMethod == BUF_SHARE_FD) {
+#if 0
+                if (pCtx->bufShareMethod == BUF_SHARE_FD) {
                     exynos_v4l2_expbuf(pCtx->hDec, &pVideoPlane->fd, buf.m.planes[j].m.mem_offset);
                     ALOGV("[%s] fd (%d) received from MFC", __func__, pVideoPlane->fd);
-//                }
-                    )
+                }
+#endif
 #endif
             }
 
@@ -1173,13 +1124,11 @@ static ExynosVideoErrorType MFC_Decoder_Run_Inbuf(void *pHandle)
     }
 
     if (pCtx->bStreamonInbuf == VIDEO_FALSE) {
-        __ta__("exynos_v4l2_streamon : V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE" ,
         if (exynos_v4l2_streamon(pCtx->hDec, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) != 0) {
             ALOGE("%s: Failed to streamon for input buffer", __func__);
             ret = VIDEO_ERROR_APIFAIL;
             goto EXIT;
         }
-        )
         pCtx->bStreamonInbuf = VIDEO_TRUE;
     }
 
@@ -1202,13 +1151,11 @@ static ExynosVideoErrorType MFC_Decoder_Run_Outbuf(void *pHandle)
     }
 
     if (pCtx->bStreamonOutbuf == VIDEO_FALSE) {
-        __ta__("exynos_v4l2_streamon : V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE" ,
         if (exynos_v4l2_streamon(pCtx->hDec, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) != 0) {
             ALOGE("%s: Failed to streamon for output buffer", __func__);
             ret = VIDEO_ERROR_APIFAIL;
             goto EXIT;
         }
-        )
         pCtx->bStreamonOutbuf = VIDEO_TRUE;
     }
 
@@ -1232,13 +1179,11 @@ static ExynosVideoErrorType MFC_Decoder_Stop_Inbuf(void *pHandle)
     }
 
     if (pCtx->bStreamonInbuf == VIDEO_TRUE) {
-        __ta__("exynos_v4l2_streamoff : V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE" ,
         if (exynos_v4l2_streamoff(pCtx->hDec, V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE) != 0) {
             ALOGE("%s: Failed to streamoff for input buffer", __func__);
             ret = VIDEO_ERROR_APIFAIL;
             goto EXIT;
         }
-        )
         pCtx->bStreamonInbuf = VIDEO_FALSE;
     }
 
@@ -1266,13 +1211,11 @@ static ExynosVideoErrorType MFC_Decoder_Stop_Outbuf(void *pHandle)
     }
 
     if (pCtx->bStreamonOutbuf == VIDEO_TRUE) {
-        __ta__("exynos_v4l2_streamoff : V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE" ,
         if (exynos_v4l2_streamoff(pCtx->hDec, V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE) != 0) {
             ALOGE("%s: Failed to streamoff for output buffer", __func__);
             ret = VIDEO_ERROR_APIFAIL;
             goto EXIT;
         }
-        )
         pCtx->bStreamonOutbuf = VIDEO_FALSE;
     }
 
@@ -1582,14 +1525,12 @@ static ExynosVideoErrorType MFC_Decoder_Enqueue_Inbuf(
             buf.m.planes[i].bytesused = dataSize[i];
     }
 
-    __ta__("exynos_v4l2_qbuf : V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE" ,
     if (exynos_v4l2_qbuf(pCtx->hDec, &buf) != 0) {
         ALOGE("%s: Failed to enqueue input buffer", __func__);
         pCtx->pInbuf[buf.index].bQueued = VIDEO_FALSE;
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     pCtx->pInbuf[buf.index].pPrivate = pPrivate;
 
@@ -1670,14 +1611,12 @@ static ExynosVideoErrorType MFC_Decoder_Enqueue_Outbuf(
         buf.memory = V4L2_MEMORY_MMAP;
     }
 
-    __ta__("exynos_v4l2_qbuf : V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE" ,
     if (exynos_v4l2_qbuf(pCtx->hDec, &buf) != 0) {
         ALOGE("%s: Failed to enqueue output buffer", __func__);
         pCtx->pOutbuf[buf.index].bQueued = VIDEO_FALSE;
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     pCtx->pOutbuf[buf.index].pPrivate = pPrivate;
 
@@ -1714,12 +1653,10 @@ static ExynosVideoBuffer *MFC_Decoder_Dequeue_Inbuf(void *pHandle)
     else
         buf.memory = V4L2_MEMORY_MMAP;
 
-    __ta__("exynos_v4l2_dqbuf : V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE" ,
     if (exynos_v4l2_dqbuf(pCtx->hDec, &buf) != 0) {
         pInbuf = NULL;
         goto EXIT;
     }
-    )
 
     pInbuf = &pCtx->pInbuf[buf.index];
     pCtx->pInbuf[buf.index].bQueued = VIDEO_FALSE;
@@ -1763,9 +1700,7 @@ static ExynosVideoBuffer *MFC_Decoder_Dequeue_Outbuf(void *pHandle)
         buf.memory = V4L2_MEMORY_MMAP;
 
     /* HACK: pOutbuf return -1 means DECODING_ONLY for almost cases */
-    __ta__("exynos_v4l2_dqbuf : V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE",
     ret = exynos_v4l2_dqbuf(pCtx->hDec, &buf);
-    );
     if (ret != 0) {
         if (errno == EIO)
             pOutbuf = (ExynosVideoBuffer *)VIDEO_ERROR_DQBUF_EIO;
@@ -1781,9 +1716,8 @@ static ExynosVideoBuffer *MFC_Decoder_Dequeue_Outbuf(void *pHandle)
 
     pOutbuf = &pCtx->pOutbuf[buf.index];
 
-    __ta__("exynos_v4l2_g_ctrl : V4L2_CID_MPEG_MFC51_VIDEO_DISPLAY_STATUS",
+#ifdef V4L2_CID_MPEG_MFC51_VIDEO_DISPLAY_STATUS
     exynos_v4l2_g_ctrl(pCtx->hDec, V4L2_CID_MPEG_MFC51_VIDEO_DISPLAY_STATUS, &value);
-    );
 
     ALOGV("%s: V4L2_CID_MPEG_MFC51_VIDEO_DISPLAY_STATUS value = %d", __func__, value);
     switch (value) {
@@ -1797,9 +1731,7 @@ static ExynosVideoBuffer *MFC_Decoder_Dequeue_Outbuf(void *pHandle)
         pOutbuf->displayStatus = VIDEO_FRAME_STATUS_DISPLAY_ONLY;
             break;
     case 3:
-        __ta__("exynos_v4l2_g_ctrl : V4L2_CID_MPEG_MFC51_VIDEO_CHECK_STATE",
         exynos_v4l2_g_ctrl(pCtx->hDec, V4L2_CID_MPEG_MFC51_VIDEO_CHECK_STATE, &state);
-        );
         if (state == 1)  /* Resolution change is detected */
             pOutbuf->displayStatus = VIDEO_FRAME_STATUS_CHANGE_RESOL;
         else             /* Decoding is finished */
@@ -1809,7 +1741,7 @@ static ExynosVideoBuffer *MFC_Decoder_Dequeue_Outbuf(void *pHandle)
         pOutbuf->displayStatus = VIDEO_FRAME_STATUS_UNKNOWN;
         break;
     }
-
+#endif
     switch (buf.flags & (0x7 << 3)) {
     ALOGV("%s: frameType: %d", __func__, buf.flags & (0x7 << 3));
     case V4L2_BUF_FLAG_KEYFRAME:
@@ -1919,12 +1851,10 @@ static ExynosVideoErrorType MFC_Decoder_Cleanup_Inbuf(void *pHandle)
     else
         req.memory = V4L2_MEMORY_MMAP;
 
-    __ta__("exynos_v4l2_reqbufs : V4L2_BUF_TYPE_VIDEO_OUTPUT_MPLANE" ,
     if (exynos_v4l2_reqbufs(pCtx->hDec, &req) != 0) {
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     pCtx->nInbufs = (int)req.count;
 
@@ -1983,13 +1913,11 @@ static ExynosVideoErrorType MFC_Decoder_Cleanup_Outbuf(void *pHandle)
     else
         req.memory = V4L2_MEMORY_MMAP;
 
-    __ta__("exynos_v4l2_reqbufs : V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE" ,
     if (exynos_v4l2_reqbufs(pCtx->hDec, &req) != 0) {
         ALOGE("reqbuf fail");
         ret = VIDEO_ERROR_APIFAIL;
         goto EXIT;
     }
-    )
 
     pCtx->nOutbufs = req.count;
 

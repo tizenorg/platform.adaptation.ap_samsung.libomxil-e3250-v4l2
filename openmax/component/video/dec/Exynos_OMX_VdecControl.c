@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mm_types.h>
 #include "Exynos_OMX_Macros.h"
 #include "Exynos_OSAL_Event.h"
 #include "Exynos_OMX_Vdec.h"
@@ -122,23 +123,43 @@ OMX_ERRORTYPE Exynos_OMX_UseBuffer(
                 temp_bufferHeader->nOutputPortIndex = OUTPUT_PORT_INDEX;
 #ifdef SLP_PLATFORM
             if (nPortIndex == OUTPUT_PORT_INDEX) {
-                SCMN_IMGB * pSlpOutBuf = (SCMN_IMGB *)pBuffer;
+                MMVideoBuffer * pSlpOutBuf = (MMVideoBuffer *)pBuffer;
 
-                Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "fd[0] =%d, fd[1] =%d, vaddr[0] =%p, vaddr[1] = %p",
-                    pSlpOutBuf->fd[0], pSlpOutBuf->fd[1], pSlpOutBuf->a[0], pSlpOutBuf->a[1]);
+                Exynos_OSAL_Log(EXYNOS_LOG_ERROR, "fd[0] =%d, fd[1] =%d, vaddr[0] =%p, vaddr[1] = %p, y_size=%d, uv_size=%d\n",
+                        pSlpOutBuf->handle.dmabuf_fd[0], pSlpOutBuf->handle.dmabuf_fd[1], pSlpOutBuf->data[0], pSlpOutBuf->data[1],
+                        pSlpOutBuf->size[0],pSlpOutBuf->size[1]);
 
-                pExynosPort->extendBufferHeader[i].buf_fd[0] = pSlpOutBuf->fd[0];
-                pExynosPort->extendBufferHeader[i].buf_fd[1] = pSlpOutBuf->fd[1];
+                pExynosPort->extendBufferHeader[i].buf_fd[0] = pSlpOutBuf->handle.dmabuf_fd[0];
+                pExynosPort->extendBufferHeader[i].buf_fd[1] = pSlpOutBuf->handle.dmabuf_fd[1];
                 pExynosPort->extendBufferHeader[i].buf_fd[2] = 0;
 
-                pExynosPort->extendBufferHeader[i].pYUVBuf[0] = pSlpOutBuf->a[0];
-                pExynosPort->extendBufferHeader[i].pYUVBuf[1] = pSlpOutBuf->a[1];
+                pExynosPort->extendBufferHeader[i].pYUVBuf[0] = pSlpOutBuf->data[0];
+                pExynosPort->extendBufferHeader[i].pYUVBuf[1] = pSlpOutBuf->data[1];
                 pExynosPort->extendBufferHeader[i].pYUVBuf[2] = NULL;
 
                 Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "PlatformBuffer: buf %d pYUVBuf[0]:0x%x , pYUVBuf[1]:0x%x ",
                     i, pExynosPort->extendBufferHeader[i].pYUVBuf[0], pExynosPort->extendBufferHeader[i].pYUVBuf[1]);
             } else if ((pVideoDec->bDRMPlayerMode == OMX_TRUE) && (nPortIndex == INPUT_PORT_INDEX)) {
                 pExynosPort->extendBufferHeader[i].buf_fd[0] = pBuffer;
+            } else if(nPortIndex == INPUT_PORT_INDEX){
+                MMVideoBuffer * pSlpOutBuf = (MMVideoBuffer *)pBuffer;
+                temp_bufferHeader->pBuffer  = pSlpOutBuf->data[0];
+#if 0
+                pExynosPort->extendBufferHeader[i].buf_fd[0] = pBuffer;
+                SCMN_IMGB * pSlpOutBuf = (SCMN_IMGB *)pBuffer;
+                Exynos_OSAL_Log(EXYNOS_LOG_ERROR, "fd[0] =%d, vaddr[0] =%p, , length=%d",
+                        pSlpOutBuf->fd[0], pSlpOutBuf->a[0], nSizeBytes);
+
+                pExynosPort->extendBufferHeader[i].buf_fd[0] = pSlpOutBuf->fd[0];
+                pExynosPort->extendBufferHeader[i].buf_fd[1] = 0;
+                pExynosPort->extendBufferHeader[i].buf_fd[2] = 0;
+
+                pExynosPort->extendBufferHeader[i].pYUVBuf[0] = pSlpOutBuf->a[0];
+                pExynosPort->extendBufferHeader[i].pYUVBuf[1] = NULL;
+                pExynosPort->extendBufferHeader[i].pYUVBuf[2] = NULL;
+
+                temp_bufferHeader->pBuffer = pSlpOutBuf->a[0];
+#endif
             }
 #endif
             *ppBufferHdr = temp_bufferHeader;
@@ -794,7 +815,7 @@ OMX_ERRORTYPE Exynos_OutputBufferReturn(OMX_COMPONENTTYPE *pOMXComponent)
 
     if (bufferHeader != NULL) {
 #ifdef SLP_PLATFORM
-        bufferHeader->nFilledLen = sizeof(SCMN_IMGB);
+        bufferHeader->nFilledLen = sizeof(MMVideoBuffer);
 #else
         bufferHeader->nFilledLen = dataBuffer->remainDataLen;
 #endif
@@ -1547,7 +1568,7 @@ OMX_ERRORTYPE Exynos_Shared_DataToPlatformBuffer(EXYNOS_OMX_DATA *pData, EXYNOS_
     pUseBuffer->bufferHeader          = pData->bufferHeader;
     pUseBuffer->allocSize             = pData->allocSize;
 #ifdef SLP_PLATFORM
-    pUseBuffer->dataLen               = sizeof(SCMN_IMGB);
+    pUseBuffer->dataLen               = sizeof(MMVideoBuffer);
 #else
     pUseBuffer->dataLen               = pData->dataLen;
 #endif

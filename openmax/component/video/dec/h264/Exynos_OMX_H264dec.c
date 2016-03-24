@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mm_types.h>
 
 #include "Exynos_OMX_Macros.h"
 #include "Exynos_OMX_Basecomponent.h"
@@ -41,7 +42,7 @@
 #include "Exynos_OSAL_SharedMemory.h"
 #include "Exynos_OSAL_Event.h"
 
-#include <mm_ta/mm_ta.h>
+
 
 #ifdef USE_PB
 #include "Exynos_OSAL_Platform_Specific.h"
@@ -1617,7 +1618,7 @@ OMX_ERRORTYPE Exynos_H264Dec_SetParameter(
                 break;
 #ifdef SLP_PLATFORM /* NV12T fd */
             case OMX_SEC_COLOR_FormatNV12T_DmaBuf_Fd:
-                pExynosOutputPort->portDefinition.nBufferSize = sizeof(SCMN_IMGB);
+                pExynosOutputPort->portDefinition.nBufferSize = sizeof(MMVideoBuffer);
                 break;
 #endif
             case OMX_SEC_COLOR_FormatNV12Tiled:
@@ -2162,7 +2163,7 @@ OMX_ERRORTYPE Exynos_H264Dec_SrcIn(OMX_COMPONENTTYPE *pOMXComponent, EXYNOS_OMX_
         /*Add First Frame check : */
         if((pSrcInputData->nFlags & OMX_BUFFERFLAG_CODECCONFIG) == OMX_BUFFERFLAG_CODECCONFIG)
         {
-            MMTA_ACUM_ITEM_END("Video First Frame Coming", 0);
+            Exynos_OSAL_Log(EXYNOS_LOG_TRACE,"Video First Frame Coming");
         }
 
         /* queue work for input buffer */

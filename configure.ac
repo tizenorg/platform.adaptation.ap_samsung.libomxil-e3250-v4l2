@@ -9,6 +9,10 @@ AM_INIT_AUTOMAKE([tar-ustar])
 # Set to 'm4' the directory where the extra autoconf macros are stored
 AC_CONFIG_MACRO_DIR([m4])
 
+PKG_CHECK_MODULES(MM_COMMON, mm-common)
+AC_SUBST(MM_COMMON_CFLAGS)
+AC_SUBST(MM_COMMON_LIBS)
+
 AC_CONFIG_FILES([
     omxil-e3250-v4l2.pc
     srp.pc
@@ -93,23 +97,6 @@ fi
 AM_CONDITIONAL(USE_DLOG, test "x$USE_DLOG" = "xyes")
 dnl end -----------------------------------------------------------------------
 
-dnl use mm-ta ------------------------------------------------------------------
-AC_ARG_ENABLE(mm-ta, AC_HELP_STRING([--enable-mm-ta], [using mm-ta]),
-        [
-          case "${enableval}" in
-           yes) USE_MMTA=yes ;;
-           no)  USE_MMTA=no ;;
-           *)   AC_MSG_ERROR(bad value ${enableval} for --enable-mm-ta) ;;
-          esac
-        ],[USE_MMTA=no])
-
-if test "x$USE_MMTA" = "xyes"; then
-        PKG_CHECK_MODULES(MMTA, mm-ta)
-        AC_SUBST(MMTA_CFLAGS)
-        AC_SUBST(MMTA_LIBS)
-fi
-AM_CONDITIONAL(USE_MMTA, test "x$USE_MMTA" = "xyes")
-dnl end -----------------------------------------------------------------------
 AC_ARG_ENABLE([exynos3250], AC_HELP_STRING([--enable-exynos3250], [Enable exynos3250 specific code]),
         [
          case "${enableval}" in
@@ -208,5 +195,16 @@ AC_ARG_ENABLE(drm, AC_HELP_STRING([--enable-use-drm], [use drm]),
         ],
         [BOARD_USE_DRM=no])
 AM_CONDITIONAL([BOARD_USE_DRM], [test "x$BOARD_USE_DRM" = "xyes"])
+
+AC_ARG_ENABLE(neon, AC_HELP_STRING([--enable-neon], [neon]),
+        [
+          case "${enableval}" in
+           yes) BOARD_USE_NEON=yes ;;
+           no)  BOARD_USE_NEON=no ;;
+           *)   AC_MSG_ERROR(bad value ${enableval} for --enable-neon) ;;
+          esac
+        ],
+        [BOARD_USE_NEON=no])
+AM_CONDITIONAL([BOARD_USE_NEON], [test "x$BOARD_USE_NEON" = "xyes"])
 
 AC_OUTPUT

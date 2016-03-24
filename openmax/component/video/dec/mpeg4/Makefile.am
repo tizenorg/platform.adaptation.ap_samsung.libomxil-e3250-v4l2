@@ -1,5 +1,5 @@
 lib_LTLIBRARIES = libOMX.Exynos.M4V.Decoder.la
-libdir = @prefix@/lib/omx
+libdir = @libdir@/omx
 
 libOMX_Exynos_M4V_Decoder_la_SOURCES = Exynos_OMX_Mpeg4dec.c \
                                     Exynos_OMX_Mpeg4dec.h \
@@ -23,6 +23,9 @@ libOMX_Exynos_M4V_Decoder_la_CFLAGS = -I$(top_srcdir)/openmax/include/khronos \
                                    -I$(top_srcdir)/exynos4/libcsc \
                                    -I$(top_srcdir)/exynos4/libcodec/video/v4l2/include \
                                    -I$(top_srcdir)/exynos/include
+
+libOMX_Exynos_M4V_Decoder_la_CFLAGS += $(MM_COMMON_CFLAGS)
+libOMX_Exynos_M4V_Decoder_la_LIBADD += $(MM_COMMON_LIBS)
 
 if BOARD_USE_ANB
 libOMX_Exynos_M4V_Decoder_la_CFLAGS += -DUSE_ANB

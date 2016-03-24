@@ -8,10 +8,9 @@ ExclusiveArch: %arm
 Source: %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
-#!BuildIgnore: kernel-headers
-BuildRequires:  kernel-headers-3.4-exynos3250
+BuildRequires: kernel-headers
 BuildRequires:  pkgconfig(dlog)
-BuildRequires:  pkgconfig(mm-ta)
+BuildRequires: pkgconfig(mm-common)
 
 %description
 implementation of OpenMAX IL for e3250-v4l2 for B2
@@ -31,14 +30,22 @@ development package for libomxil-e3250-v4l2
 %build
 ./autogen.sh
 
-export CFLAGS+=" -mfpu=neon\
- -DUSE_DLOG\
+export CFLAGS+="\
+%ifnarch aarch64
+ -mfpu=neon\
+ -DUSE_NEON\
+%endif
  -DUSE_PB\
  -DUSE_DMA_BUF\
  -DUSE_H264_PREPEND_SPS_PPS\
- -DGST_EXT_TIME_ANALYSIS"
+ -DGST_EXT_TIME_ANALYSIS\
+ -DKERNEL_HEADER_MODIFICATION"
 
-%configure --prefix=%{_prefix} --disable-static --enable-dlog --enable-mm-ta --enable-exynos3250
+%ifnarch aarch64
+%configure --prefix=%{_prefix} --disable-static --enable-dlog --enable-exynos3250 --enable-neon
+%else
+%configure --prefix=%{_prefix} --disable-static --enable-dlog --enable-exynos3250 --disable-neon
+%endif
 
 #make %{?jobs:-j%jobs}
 make
@@ -46,8 +53,8 @@ make
 
 %install
 rm -rf %{buildroot}
-mkdir -p %{buildroot}/usr/share/license
-cp COPYING %{buildroot}/usr/share/license/%{name}
+#mkdir -p %{buildroot}/usr/share/license
+#cp COPYING %{buildroot}/usr/share/license/%{name}
 %make_install
 
 
@@ -58,17 +65,11 @@ cp COPYING %{buildroot}/usr/share/license/%{name}
 
 %files
 %manifest libomxil-e3250-v4l2.manifest
-/usr/lib/*.so*
-/usr/lib/omx/libOMX.Exynos.AVC.Decoder.so
-/usr/lib/omx/libOMX.Exynos.AVC.Encoder.so
-/usr/lib/omx/libOMX.Exynos.M4V.Decoder.so
-/usr/share/license/%{name}
-%exclude /usr/lib/omx/libOMX.Exynos.M2V.Decoder.so
-%exclude /usr/lib/omx/libOMX.Exynos.WMV.Decoder.so
-%exclude /usr/lib/omx/libOMX.Exynos.M4V.Encoder.so
-%exclude /usr/lib/omx/libOMX.Exynos.MP3.Decoder.so
+%{_libdir}/*.so*
+%{_libdir}/omx/*.so
+
 
 %files devel
 /usr/include/*
-/usr/lib/pkgconfig/*
+%{_libdir}/pkgconfig/*
 

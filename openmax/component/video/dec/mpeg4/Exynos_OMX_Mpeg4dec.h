@@ -107,6 +107,8 @@ OSCL_EXPORT_REF OMX_ERRORTYPE Exynos_OMX_ComponentInit(
 OMX_ERRORTYPE Exynos_OMX_ComponentDeinit(
     OMX_HANDLETYPE hComponent);
 
+OMX_ERRORTYPE Mpeg4CodecDstSetup(OMX_COMPONENTTYPE *pOMXComponent);
+OMX_ERRORTYPE Mpeg4CodecCheckResolutionChange(OMX_COMPONENTTYPE *pOMXComponent);
 #ifdef __cplusplus
 };
 #endif

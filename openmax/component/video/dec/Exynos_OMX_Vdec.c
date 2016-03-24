@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <mm_types.h>
 #include "Exynos_OMX_Macros.h"
 #include "Exynos_OSAL_Event.h"
 #include "Exynos_OMX_Vdec.h"
@@ -112,7 +113,7 @@ inline void Exynos_UpdateFrameSize(OMX_COMPONENTTYPE *pOMXComponent)
 #ifdef SLP_PLATFORM /* nv12t fd */
         case OMX_SEC_COLOR_FormatNV12T_DmaBuf_Fd:
             if (width && height)
-                exynosOutputPort->portDefinition.nBufferSize = sizeof(SCMN_IMGB);
+                exynosOutputPort->portDefinition.nBufferSize = sizeof(MMVideoBuffer);
             break;
 #endif
         case OMX_SEC_COLOR_FormatNV12Tiled:
@@ -251,7 +252,7 @@ OMX_BOOL Exynos_CSC_OutputData(OMX_COMPONENTTYPE *pOMXComponent, EXYNOS_OMX_DATA
     OMX_U32                        copySize         = 0;
     DECODE_CODEC_EXTRA_BUFFERINFO *pBufferInfo      = NULL;
 #ifdef SLP_PLATFORM
-    SCMN_IMGB *pSlpOutBuf = NULL;
+    MMVideoBuffer *pSlpOutBuf = NULL;
 #endif
 
     FunctionIn();
@@ -276,35 +277,36 @@ OMX_BOOL Exynos_CSC_OutputData(OMX_COMPONENTTYPE *pOMXComponent, EXYNOS_OMX_DATA
     colorFormat = pBufferInfo->ColorFormat;
 
 #ifdef SLP_PLATFORM
-    pSlpOutBuf = (SCMN_IMGB *)pOutputBuf;
-    pSlpOutBuf->w[0] = width;
-    pSlpOutBuf->w[1] = width;
-    pSlpOutBuf->h[0] = height;
-    pSlpOutBuf->h[1] = height/2;
-    pSlpOutBuf->s[0] = width; /* need to check. stride */
-    pSlpOutBuf->s[1] = width;
-    pSlpOutBuf->e[0] = height; /* need to check. elevation */
-    pSlpOutBuf->e[1] = height/2;
+    pSlpOutBuf = (MMVideoBuffer *)pOutputBuf;
+    pSlpOutBuf->width[0] = width;
+    pSlpOutBuf->width[1] = width;
+    pSlpOutBuf->height[0] = height;
+    pSlpOutBuf->height[1] = height/2;
+    pSlpOutBuf->stride_width[0] = width; /* need to check. stride */
+    pSlpOutBuf->stride_width[1] = width;
+    pSlpOutBuf->stride_height[0] = height; /* need to check. elevation */
+    pSlpOutBuf->stride_height[1] = height/2;
 
     if (pVideoDec->bDRMPlayerMode == OMX_TRUE) {
-        pSlpOutBuf->a[0] = 0;
-        pSlpOutBuf->a[1] = 0;
+        pSlpOutBuf->data[0] = 0;
+        pSlpOutBuf->data[1] = 0;
     } else {
-        pSlpOutBuf->a[0] = dstOutputData->buffer.multiPlaneBuffer.dataBuffer[0];
-        pSlpOutBuf->a[1] = dstOutputData->buffer.multiPlaneBuffer.dataBuffer[1];
+        pSlpOutBuf->data[0] = dstOutputData->buffer.multiPlaneBuffer.dataBuffer[0];
+        pSlpOutBuf->data[1] = dstOutputData->buffer.multiPlaneBuffer.dataBuffer[1];
     }
-    pSlpOutBuf->a[2] = 0; /* omx do not use this plane */
+    pSlpOutBuf->data[2] = 0; /* omx do not use this plane */
 
 
-    pSlpOutBuf->fd[0] = dstOutputData->buffer.multiPlaneBuffer.fd[0];
-    pSlpOutBuf->fd[1] = dstOutputData->buffer.multiPlaneBuffer.fd[1];
-    pSlpOutBuf->fd[2] = dstOutputData->buffer.multiPlaneBuffer.fd[2];
+    pSlpOutBuf->handle.dmabuf_fd[0] = dstOutputData->buffer.multiPlaneBuffer.fd[0];
+    pSlpOutBuf->handle.dmabuf_fd[1] = dstOutputData->buffer.multiPlaneBuffer.fd[1];
+    pSlpOutBuf->handle.dmabuf_fd[2] = 0; /* omx do not use this plane */
 
-    pSlpOutBuf->buf_share_method = MEMORY_DMABUF;
-    dstOutputData->dataLen = sizeof(SCMN_IMGB);
+    //pSlpOutBuf->buf_share_method = MEMORY_DMABUF;
+    dstOutputData->dataLen = sizeof(MMVideoBuffer);
 
     Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "%s: using fd instead of csc", __FUNCTION__);
-    Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "fd (%d, %d, %d) received from MFC", pSlpOutBuf->fd[0], pSlpOutBuf->fd[1], pSlpOutBuf->fd[2]);
+    Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "fd (%d, %d, %d) received from MFC", pSlpOutBuf->handle.dmabuf_fd[0], pSlpOutBuf->handle.dmabuf_fd[1],
+                    pSlpOutBuf->handle.dmabuf_fd[2]);
 
     ret = OMX_TRUE;
     goto EXIT;
