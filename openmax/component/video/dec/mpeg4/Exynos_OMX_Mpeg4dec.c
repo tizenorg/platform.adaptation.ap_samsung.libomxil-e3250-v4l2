@@ -1259,6 +1259,7 @@ OMX_ERRORTYPE Mpeg4CodecDstSetup(OMX_COMPONENTTYPE *pOMXComponent)
                 for (plane = 0; plane < MFC_OUTPUT_BUFFER_PLANE; plane++) {
                     planes[plane].fd = pExynosOutputPort->extendBufferHeader[i].buf_fd[plane];
                     planes[plane].addr = pExynosOutputPort->extendBufferHeader[i].pYUVBuf[plane];
+                    planes[plane].tbm_bo = pExynosOutputPort->extendBufferHeader[i].tbm_bo[plane];
                     planes[plane].allocSize = nAllocLen[plane];
                 }
 

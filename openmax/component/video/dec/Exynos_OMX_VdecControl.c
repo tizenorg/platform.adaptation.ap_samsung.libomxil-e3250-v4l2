@@ -137,8 +137,12 @@ OMX_ERRORTYPE Exynos_OMX_UseBuffer(
                 pExynosPort->extendBufferHeader[i].pYUVBuf[1] = pSlpOutBuf->data[1];
                 pExynosPort->extendBufferHeader[i].pYUVBuf[2] = NULL;
 
-                Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "PlatformBuffer: buf %d pYUVBuf[0]:0x%x , pYUVBuf[1]:0x%x ",
-                    i, pExynosPort->extendBufferHeader[i].pYUVBuf[0], pExynosPort->extendBufferHeader[i].pYUVBuf[1]);
+                pExynosPort->extendBufferHeader[i].tbm_bo[0] = pSlpOutBuf->handle.bo[0];
+                pExynosPort->extendBufferHeader[i].tbm_bo[1] = pSlpOutBuf->handle.bo[1];
+                pExynosPort->extendBufferHeader[i].tbm_bo[2] = NULL;
+
+                Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "\nPlatformBuffer: buf %d pYUVBuf[0]:0x%x , pYUVBuf[1]:0x%x ",
+                        i, pExynosPort->extendBufferHeader[i].pYUVBuf[0], pExynosPort->extendBufferHeader[i].pYUVBuf[1]);
             } else if ((pVideoDec->bDRMPlayerMode == OMX_TRUE) && (nPortIndex == INPUT_PORT_INDEX)) {
                 pExynosPort->extendBufferHeader[i].buf_fd[0] = pBuffer;
             } else if(nPortIndex == INPUT_PORT_INDEX){

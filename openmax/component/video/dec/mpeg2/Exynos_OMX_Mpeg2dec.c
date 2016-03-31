@@ -762,6 +762,7 @@ OMX_ERRORTYPE Mpeg2CodecDstSetup(OMX_COMPONENTTYPE *pOMXComponent)
                 for (plane = 0; plane < MFC_OUTPUT_BUFFER_PLANE; plane++) {
                     planes[plane].fd = pExynosOutputPort->extendBufferHeader[i].buf_fd[plane];
                     planes[plane].addr = pExynosOutputPort->extendBufferHeader[i].pYUVBuf[plane];
+                    planes[plane].tbm_bo = pExynosOutputPort->extendBufferHeader[i].tbm_bo[plane];
                     planes[plane].allocSize = nAllocLen[plane];
                 }
 
@@ -1705,6 +1706,7 @@ OMX_ERRORTYPE Exynos_Mpeg2Dec_DstOut(OMX_COMPONENTTYPE *pOMXComponent, EXYNOS_OM
     for (plane = 0; plane < MFC_OUTPUT_BUFFER_PLANE; plane++) {
         pDstOutputData->buffer.multiPlaneBuffer.dataBuffer[plane] = pVideoBuffer->planes[plane].addr;
         pDstOutputData->buffer.multiPlaneBuffer.fd[plane] = pVideoBuffer->planes[plane].fd;
+        pDstOutputData->buffer.multiPlaneBuffer.tbm_bo[plane] = pVideoBuffer->planes[plane].tbm_bo;
         pDstOutputData->allocSize += pVideoBuffer->planes[plane].allocSize;
         pDstOutputData->dataLen +=  pVideoBuffer->planes[plane].dataSize;
     }

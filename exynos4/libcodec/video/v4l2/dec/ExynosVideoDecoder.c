@@ -42,8 +42,6 @@
 #include "ExynosVideoApi.h"
 #include "ExynosVideoDec.h"
 
-//#include <mm_ta/mm_ta.h>
-
 /* #define LOG_NDEBUG 0 */
 #define LOG_TAG "ExynosVideoDecoder"
 #ifndef SLP_PLATFORM /* build env */
@@ -1328,6 +1326,7 @@ static ExynosVideoErrorType MFC_Decoder_Register_Outbuf(
                 pCtx->pOutbuf[nIndex].planes[plane].addr = planes[plane].addr;
                 pCtx->pOutbuf[nIndex].planes[plane].allocSize = planes[plane].allocSize;
                 pCtx->pOutbuf[nIndex].planes[plane].fd = planes[plane].fd;
+                pCtx->pOutbuf[nIndex].planes[plane].tbm_bo = planes[plane].tbm_bo;
             }
             pCtx->pOutbuf[nIndex].bRegistered = VIDEO_TRUE;
             ALOGV("%s: registered buf %d 0:(addr=%p alloc_sz=%d fd=%d) 1:(addr=%p alloc_sz=%d fd=%d)\n",
