@@ -301,7 +301,11 @@ OMX_BOOL Exynos_CSC_OutputData(OMX_COMPONENTTYPE *pOMXComponent, EXYNOS_OMX_DATA
     pSlpOutBuf->handle.dmabuf_fd[1] = dstOutputData->buffer.multiPlaneBuffer.fd[1];
     pSlpOutBuf->handle.dmabuf_fd[2] = 0; /* omx do not use this plane */
 
-    //pSlpOutBuf->buf_share_method = MEMORY_DMABUF;
+    pSlpOutBuf->handle.bo[0] = dstOutputData->buffer.multiPlaneBuffer.tbm_bo[0];
+    pSlpOutBuf->handle.bo[1] = dstOutputData->buffer.multiPlaneBuffer.tbm_bo[1];
+    pSlpOutBuf->handle.bo[2] = NULL;
+
+    //pSlpOutBuf->type = MM_VIDEO_BUFFER_TYPE_DMABUF_FD;
     dstOutputData->dataLen = sizeof(MMVideoBuffer);
 
     Exynos_OSAL_Log(EXYNOS_LOG_TRACE, "%s: using fd instead of csc", __FUNCTION__);

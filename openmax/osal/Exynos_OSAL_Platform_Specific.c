@@ -249,6 +249,10 @@ OMX_ERRORTYPE Exynos_OSAL_UnlockPB(OMX_IN OMX_PTR pBuffer, EXYNOS_OMX_DATA *pDat
     pSlpOutBuf->handle.dmabuf_fd[1] = pData->buffer.multiPlaneBuffer.fd[1];
     pSlpOutBuf->handle.dmabuf_fd[2] = 0;
 
+    pSlpOutBuf->handle.bo[0] = pData->buffer.multiPlaneBuffer.tbm_bo[0];
+    pSlpOutBuf->handle.bo[1] = pData->buffer.multiPlaneBuffer.tbm_bo[1];
+    pSlpOutBuf->handle.bo[2] = NULL;
+
     if(pExynosInPort->portDefinition.format.video.eCompressionFormat == OMX_VIDEO_CodingAVC)
     {
         pSlpOutBuf->size[0] = calc_plane(pBufferInfo->imageWidth,pBufferInfo->imageHeight);

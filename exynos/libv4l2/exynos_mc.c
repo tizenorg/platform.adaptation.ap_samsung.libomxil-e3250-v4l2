@@ -40,15 +40,7 @@
 #ifndef SLP_PLATFORM /* build env */
 #include <media.h>
 #else
-
-#ifdef KERNEL_HEADER_MODIFICATION
-#include "../kernel_header/compiler.h"
-#include "../kernel_header/media.h"
-#else
-#include <linux/compiler.h>
 #include <linux/media.h>
-#endif
-
 #endif
 #include <linux/kdev_t.h>
 #include <linux/types.h>
