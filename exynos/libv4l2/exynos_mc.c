@@ -45,7 +45,7 @@
 #include "../kernel_header/compiler.h"
 #include "../kernel_header/media.h"
 #else
-#include <linux/compiler.h>
+//#include <linux/compiler.h>
 #include <linux/media.h>
 #endif
 

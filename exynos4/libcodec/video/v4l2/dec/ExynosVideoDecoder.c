@@ -42,8 +42,6 @@
 #include "ExynosVideoApi.h"
 #include "ExynosVideoDec.h"
 
-//#include <mm_ta/mm_ta.h>
-
 /* #define LOG_NDEBUG 0 */
 #define LOG_TAG "ExynosVideoDecoder"
 #ifndef SLP_PLATFORM /* build env */
