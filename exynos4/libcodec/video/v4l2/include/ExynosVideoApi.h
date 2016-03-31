@@ -107,6 +107,7 @@ typedef struct _ExynosVideoPlane {
     unsigned int   dataSize;
     unsigned long  offset;
     int            fd;
+    void          *tbm_bo;
 } ExynosVideoPlane;
 
 typedef struct _ExynosVideoBuffer {
