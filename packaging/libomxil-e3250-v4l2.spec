@@ -8,8 +8,10 @@ ExclusiveArch: %arm
 Source: %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
-BuildRequires: kernel-headers
-BuildRequires:  pkgconfig(dlog)
+#!BuildIgnore: kernel-headers
+BuildConflicts: linux-glibc-devel
+BuildRequires: kernel-headers-tizen-dev
+BuildRequires: pkgconfig(dlog)
 BuildRequires: pkgconfig(mm-common)
 
 %description
@@ -38,8 +40,7 @@ export CFLAGS+="\
  -DUSE_PB\
  -DUSE_DMA_BUF\
  -DUSE_H264_PREPEND_SPS_PPS\
- -DGST_EXT_TIME_ANALYSIS\
- -DKERNEL_HEADER_MODIFICATION"
+ -DGST_EXT_TIME_ANALYSIS"
 
 %ifnarch aarch64
 %configure --prefix=%{_prefix} --disable-static --enable-dlog --enable-exynos3250 --enable-neon
