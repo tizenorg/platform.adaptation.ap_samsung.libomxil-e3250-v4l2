@@ -1,7 +1,7 @@
 Name: libomxil-e3250-v4l2
 Summary: OpenMAX IL for e3250-v4l2
-Version: 0.1.0
-License: TO BE FILLED IN
+Version: 0.1.1
+License: Apache-2.0
 Group: Development/Libraries
 Release: 0
 ExclusiveArch: %arm
@@ -42,6 +42,8 @@ export CFLAGS+="\
  -DUSE_H264_PREPEND_SPS_PPS\
  -DGST_EXT_TIME_ANALYSIS"
 
+export LDFLAGS+="-Wl,--rpath=%{_prefix} -Wl,--as-needed,-z,noexecstack"
+
 %ifnarch aarch64
 %configure --prefix=%{_prefix} --disable-static --enable-dlog --enable-exynos3250 --enable-neon
 %else
@@ -54,8 +56,8 @@ make
 
 %install
 rm -rf %{buildroot}
-#mkdir -p %{buildroot}/usr/share/license
-#cp COPYING %{buildroot}/usr/share/license/%{name}
+mkdir -p %{buildroot}/usr/share/license
+cp COPYING %{buildroot}/usr/share/license/%{name}
 %make_install
 
 
@@ -68,6 +70,7 @@ rm -rf %{buildroot}
 %manifest libomxil-e3250-v4l2.manifest
 %{_libdir}/*.so*
 %{_libdir}/omx/*.so
+%{_datadir}/license/%{name}
 
 
 %files devel
