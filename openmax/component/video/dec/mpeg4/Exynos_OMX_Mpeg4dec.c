@@ -1127,7 +1127,7 @@ OMX_ERRORTYPE Mpeg4CodecSrcSetup(OMX_COMPONENTTYPE *pOMXComponent, EXYNOS_OMX_DA
 
     /* set output geometry */
     Exynos_OSAL_Memset(&bufferConf, 0, sizeof(bufferConf));
-    pMpeg4Dec->hMFCMpeg4Handle.MFCOutputColorType = bufferConf.eColorFormat = VIDEO_COLORFORMAT_NV12_TILED;
+    pMpeg4Dec->hMFCMpeg4Handle.MFCOutputColorType = bufferConf.eColorFormat = VIDEO_COLORFORMAT_NV12;
     if (pOutbufOps->Set_Geometry(hMFCHandle, &bufferConf) != VIDEO_ERROR_NONE) {
         Exynos_OSAL_Log(EXYNOS_LOG_ERROR, "Failed to set geometry for output buffer");
         ret = OMX_ErrorInsufficientResources;
@@ -1752,8 +1752,9 @@ OMX_ERRORTYPE Exynos_Mpeg4Dec_SetParameter(
             case OMX_COLOR_FormatYUV420SemiPlanar:
                 pExynosOutputPort->portDefinition.nBufferSize = (width * height * 3) / 2;
                 break;
-#ifdef SLP_PLATFORM /* NV12T fd */
+#ifdef SLP_PLATFORM /* NV12 fd */
             case OMX_SEC_COLOR_FormatNV12T_DmaBuf_Fd:
+            case OMX_SEC_COLOR_FormatNV12L_DmaBuf_Fd:
                 pExynosOutputPort->portDefinition.nBufferSize = sizeof(MMVideoBuffer);
                 break;
 #endif
@@ -2497,8 +2498,8 @@ OMX_ERRORTYPE Exynos_Mpeg4Dec_DstOut(OMX_COMPONENTTYPE *pOMXComponent, EXYNOS_OM
     pBufferInfo->imageHeight = bufferGeometry->nFrameHeight;
     switch (bufferGeometry->eColorFormat) {
     case VIDEO_COLORFORMAT_NV12:
-#ifdef SLP_PLATFORM /* NV12T fd */
-        pBufferInfo->ColorFormat = OMX_SEC_COLOR_FormatNV12T_DmaBuf_Fd;
+#ifdef SLP_PLATFORM /* NV12 fd */
+        pBufferInfo->ColorFormat = OMX_SEC_COLOR_FormatNV12L_DmaBuf_Fd;
 #else
         pBufferInfo->ColorFormat = OMX_COLOR_FormatYUV420SemiPlanar;
 #endif
@@ -2831,7 +2832,7 @@ OSCL_EXPORT_REF OMX_ERRORTYPE Exynos_OMX_ComponentInit(OMX_HANDLETYPE hComponent
     pExynosPort->portDefinition.format.video.pNativeRender = 0;
     pExynosPort->portDefinition.format.video.bFlagErrorConcealment = OMX_FALSE;
 #ifdef SLP_PLATFORM
-    pExynosPort->portDefinition.format.video.eColorFormat = OMX_SEC_COLOR_FormatNV12T_DmaBuf_Fd;
+    pExynosPort->portDefinition.format.video.eColorFormat = OMX_SEC_COLOR_FormatNV12L_DmaBuf_Fd;
     pExynosPort->bufferProcessType = BUFFER_SHARE;
 #else
     pExynosPort->portDefinition.format.video.eColorFormat = OMX_COLOR_FormatYUV420Planar;

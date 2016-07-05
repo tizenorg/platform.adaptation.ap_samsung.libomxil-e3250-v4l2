@@ -1,6 +1,6 @@
 Name: libomxil-e3250-v4l2
 Summary: OpenMAX IL for e3250-v4l2
-Version: 0.1.1
+Version: 0.1.2
 License: Apache-2.0
 Group: Development/Libraries
 Release: 0
